@@ -16,51 +16,61 @@ class GameBoardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tileSize = boardSize / GameConstants.boardSize;
+    const gap = 6.0;
+    final cellSize = (boardSize - (gap * 5)) / 4;
 
     return Container(
       width: boardSize,
       height: boardSize,
-      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: AppColors.boardBackground,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
         children: [
-          _buildEmptyGrid(tileSize),
-          _buildTiles(tileSize),
+          _buildEmptyGrid(cellSize, gap),
+          _buildTiles(cellSize, gap),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyGrid(double tileSize) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: GameConstants.boardSize,
-      ),
-      itemCount: GameConstants.boardSize * GameConstants.boardSize,
-      itemBuilder: (context, index) {
-        return Container(
-          margin: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: AppColors.emptyTile,
-            borderRadius: BorderRadius.circular(8),
+  Widget _buildEmptyGrid(double cellSize, double gap) {
+    final cells = <Widget>[];
+    
+    for (int row = 0; row < GameConstants.boardSize; row++) {
+      for (int col = 0; col < GameConstants.boardSize; col++) {
+        final x = gap + col * (cellSize + gap);
+        final y = gap + row * (cellSize + gap);
+        
+        cells.add(
+          Positioned(
+            left: x,
+            top: y,
+            child: Container(
+              width: cellSize,
+              height: cellSize,
+              decoration: BoxDecoration(
+                color: AppColors.emptyTile,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
           ),
         );
-      },
-    );
+      }
+    }
+    
+    return Stack(children: cells);
   }
 
-  Widget _buildTiles(double tileSize) {
+  Widget _buildTiles(double cellSize, double gap) {
     return Stack(
       children: board.tiles.map((tile) {
         return TileWidget(
           key: ValueKey(tile.id),
           tile: tile,
-          size: tileSize,
+          cellSize: cellSize,
+          gap: gap,
         );
       }).toList(),
     );

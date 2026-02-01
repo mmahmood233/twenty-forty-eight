@@ -43,3 +43,25 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# iOS/macOS build artifacts
+**/ios/Podfile.lock
+**/ios/Pods/
+**/ios/Runner.xcworkspace/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/macos/Podfile.lock
+**/macos/Pods/
+**/macos/Runner.xcworkspace/
+**/macos/.symlinks/
+**/macos/Flutter/ephemeral/
+
+# Xcode user settings
+**/ios/Runner.xcodeproj/project.pbxproj
+**/ios/Runner.xcodeproj/xcuserdata/
+**/macos/Runner.xcodeproj/xcuserdata/
+**/ios/Runner.xcworkspace/xcuserdata/
+**/macos/Runner.xcworkspace/xcuserdata/
+**/ios/Runner.xcworkspace/contents.xcworkspacedata
+**/macos/Runner.xcworkspace/contents.xcworkspacedata

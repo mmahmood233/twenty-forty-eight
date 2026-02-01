@@ -8,8 +8,19 @@ import '../widgets/score_card.dart';
 import '../widgets/game_button.dart';
 import '../../core/theme/app_colors.dart';
 
-class GameScreen extends StatelessWidget {
+class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  Offset? _dragStart;
+  bool _hasTriggeredMove = false;
+  bool _inputLocked = false;
+
+  static const double _minDragDistance = 15.0;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +102,50 @@ class GameScreen extends StatelessWidget {
     );
   }
 
+  void _handlePanStart(DragStartDetails details) {
+    if (_inputLocked) return;
+    _dragStart = details.localPosition;
+    _hasTriggeredMove = false;
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details, GameProvider gameProvider) {
+    if (_inputLocked || _hasTriggeredMove || _dragStart == null) return;
+
+    final delta = details.localPosition - _dragStart!;
+    final dx = delta.dx;
+    final dy = delta.dy;
+
+    if (dx.abs() < _minDragDistance && dy.abs() < _minDragDistance) return;
+
+    SwipeDirection? direction;
+    if (dx.abs() > dy.abs()) {
+      direction = dx > 0 ? SwipeDirection.right : SwipeDirection.left;
+    } else {
+      direction = dy > 0 ? SwipeDirection.down : SwipeDirection.up;
+    }
+
+    _hasTriggeredMove = true;
+    _inputLocked = true;
+
+    gameProvider.move(direction).then((_) {
+      if (mounted) {
+        setState(() {
+          _inputLocked = false;
+        });
+      }
+    });
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    _dragStart = null;
+    _hasTriggeredMove = false;
+  }
+
+  void _handlePanCancel() {
+    _dragStart = null;
+    _hasTriggeredMove = false;
+  }
+
   Widget _buildGameBoard(BuildContext context) {
     return Consumer<GameProvider>(
       builder: (context, gameProvider, child) {
@@ -101,20 +156,10 @@ class GameScreen extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             GestureDetector(
-              onVerticalDragEnd: (details) {
-                if (details.primaryVelocity! < -100) {
-                  gameProvider.move(SwipeDirection.up);
-                } else if (details.primaryVelocity! > 100) {
-                  gameProvider.move(SwipeDirection.down);
-                }
-              },
-              onHorizontalDragEnd: (details) {
-                if (details.primaryVelocity! < -100) {
-                  gameProvider.move(SwipeDirection.left);
-                } else if (details.primaryVelocity! > 100) {
-                  gameProvider.move(SwipeDirection.right);
-                }
-              },
+              onPanStart: _handlePanStart,
+              onPanUpdate: (details) => _handlePanUpdate(details, gameProvider),
+              onPanEnd: _handlePanEnd,
+              onPanCancel: _handlePanCancel,
               child: GameBoardWidget(
                 board: gameProvider.board,
                 boardSize: boardSize,

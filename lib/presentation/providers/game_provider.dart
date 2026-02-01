@@ -42,17 +42,41 @@ class GameProvider extends ChangeNotifier {
     if (_isAnimating || _gameState.isGameOver) return;
 
     _isAnimating = true;
-    notifyListeners();
 
     final result = _gameService.move(_board, direction);
 
     if (!result.moved) {
       _isAnimating = false;
-      notifyListeners();
       return;
     }
 
+    final tilesWithoutNew = result.board.tiles.where((t) => !t.isNew).toList();
+    _board = Board(tiles: tilesWithoutNew.map((t) => t.copyWith(isNew: false, isMerged: false)).toList());
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 150));
+
+    final mergedTiles = tilesWithoutNew.map((t) {
+      final originalTile = result.board.tiles.firstWhere(
+        (original) => original.id == t.id,
+        orElse: () => t,
+      );
+      return t.copyWith(
+        value: originalTile.value,
+        isMerged: originalTile.value != t.value,
+      );
+    }).toList();
+    
+    _board = Board(tiles: mergedTiles);
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
     _board = result.board;
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 120));
+
     final newScore = _gameState.score + result.scoreGained;
     final newBestScore = newScore > _gameState.bestScore ? newScore : _gameState.bestScore;
 
@@ -76,7 +100,6 @@ class GameProvider extends ChangeNotifier {
       status: newStatus,
     );
 
-    await Future.delayed(const Duration(milliseconds: 250));
     _isAnimating = false;
     notifyListeners();
   }
