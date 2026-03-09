@@ -1,5 +1,12 @@
+/// Represents a position on the game board.
+///
+/// Uses zero-indexed row and column coordinates to identify
+/// a specific cell in the 4x4 grid.
 class Position {
+  /// The row index (0-3) from top to bottom.
   final int row;
+  
+  /// The column index (0-3) from left to right.
   final int col;
 
   const Position({
@@ -7,6 +14,9 @@ class Position {
     required this.col,
   });
 
+  /// Creates a copy of this position with optional new values.
+  ///
+  /// Useful for creating modified positions without mutating the original.
   Position copyWith({
     int? row,
     int? col,

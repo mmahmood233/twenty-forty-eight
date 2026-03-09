@@ -6,6 +6,9 @@ import 'presentation/providers/game_provider.dart';
 import 'domain/services/game_service.dart';
 import 'data/repositories/score_repository.dart';
 
+/// Entry point for the 2048 game application.
+///
+/// Initializes Flutter bindings and sets the app to portrait-only mode.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -17,6 +20,10 @@ void main() {
   runApp(const MyApp());
 }
 
+/// Root widget of the 2048 game application.
+///
+/// Sets up the [GameProvider] for state management and
+/// configures the app theme and navigation.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

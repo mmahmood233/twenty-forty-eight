@@ -4,8 +4,18 @@ import '../../core/theme/app_colors.dart';
 import '../../core/constants/game_constants.dart';
 import 'tile_widget.dart';
 
+/// Widget that renders the 4x4 game board.
+///
+/// Uses a Stack to layer:
+/// - Background grid (empty cell slots)
+/// - Animated tiles (positioned absolutely)
+///
+/// Positioning formula: `x = gap + col * (cellSize + gap)`
 class GameBoardWidget extends StatelessWidget {
+  /// The current board state containing all tiles.
   final Board board;
+  
+  /// Total size of the board widget in pixels.
   final double boardSize;
 
   const GameBoardWidget({
@@ -35,6 +45,7 @@ class GameBoardWidget extends StatelessWidget {
     );
   }
 
+  /// Builds the background grid showing empty cell slots.
   Widget _buildEmptyGrid(double cellSize, double gap) {
     final cells = <Widget>[];
     
@@ -63,6 +74,9 @@ class GameBoardWidget extends StatelessWidget {
     return Stack(children: cells);
   }
 
+  /// Builds the stack of animated tile widgets.
+  ///
+  /// Each tile uses a ValueKey based on its ID for proper animation tracking.
   Widget _buildTiles(double cellSize, double gap) {
     return Stack(
       children: board.tiles.map((tile) {

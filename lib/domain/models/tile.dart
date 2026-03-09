@@ -1,10 +1,23 @@
 import 'position.dart';
 
+/// Represents a numbered tile on the game board.
+///
+/// Each tile has a value (2, 4, 8, 16, etc.), a position on the board,
+/// and a unique identifier for tracking during animations.
 class Tile {
+  /// The numeric value displayed on the tile (2, 4, 8, 16, etc.).
   final int value;
+  
+  /// The current position of the tile on the board.
   final Position position;
+  
+  /// Unique identifier for this tile, used for animation tracking.
   final String id;
+  
+  /// Whether this tile was just spawned (triggers spawn animation).
   final bool isNew;
+  
+  /// Whether this tile was just created by merging (triggers merge animation).
   final bool isMerged;
 
   const Tile({
@@ -15,6 +28,9 @@ class Tile {
     this.isMerged = false,
   });
 
+  /// Creates a copy of this tile with optional new values.
+  ///
+  /// Used extensively for creating immutable state updates.
   Tile copyWith({
     int? value,
     Position? position,

@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Reusable styled button widget for game actions.
+///
+/// Supports optional icon and uses the warm color theme.
 class GameButton extends StatelessWidget {
+  /// Button label text.
   final String text;
+  
+  /// Callback when button is pressed.
   final VoidCallback onPressed;
+  
+  /// Optional icon to display before text.
   final IconData? icon;
 
   const GameButton({

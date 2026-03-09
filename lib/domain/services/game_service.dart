@@ -5,9 +5,20 @@ import '../models/position.dart';
 import '../models/swipe_direction.dart';
 import '../../core/constants/game_constants.dart';
 
+/// Core game logic service for the 2048 game.
+///
+/// Handles all game mechanics including:
+/// - Board initialization
+/// - Tile movement and merging
+/// - Random tile generation
+/// - Win/lose condition checking
 class GameService {
+  /// Random number generator for tile placement and values.
   final Random _random = Random();
 
+  /// Initializes a new game board with the starting tiles.
+  ///
+  /// Creates 3 tiles with random positions and values (2 or 4).
   Board initializeBoard() {
     final tiles = <Tile>[];
     final emptyPositions = _getAllPositions();
@@ -20,6 +31,9 @@ class GameService {
     return Board(tiles: tiles);
   }
 
+  /// Returns a list of all possible positions on the board.
+  ///
+  /// Used for random tile placement during initialization.
   List<Position> _getAllPositions() {
     final positions = <Position>[];
     for (int row = 0; row < GameConstants.boardSize; row++) {
@@ -30,6 +44,10 @@ class GameService {
     return positions;
   }
 
+  /// Creates a new tile at the specified position.
+  ///
+  /// The tile value is randomly chosen (90% chance of 2, 10% chance of 4).
+  /// The [isNew] flag triggers the spawn animation.
   Tile _createNewTile(Position position, {bool isNew = true}) {
     final value = _getRandomTileValue();
     final id = '${position.row}_${position.col}_${DateTime.now().millisecondsSinceEpoch}';
@@ -41,6 +59,9 @@ class GameService {
     );
   }
 
+  /// Generates a random tile value based on weighted probabilities.
+  ///
+  /// Returns 2 with 90% probability, 4 with 10% probability.
   int _getRandomTileValue() {
     final totalWeight = GameConstants.newTileWeights.reduce((a, b) => a + b);
     final randomValue = _random.nextInt(totalWeight);
@@ -55,6 +76,10 @@ class GameService {
     return GameConstants.possibleNewTileValues[0];
   }
 
+  /// Executes a move in the specified direction.
+  ///
+  /// Returns a [MoveResult] containing the new board state,
+  /// score gained from merges, and whether any tiles moved.
   MoveResult move(Board board, SwipeDirection direction) {
     final List<Tile> movedTiles = [];
     final List<List<Tile>> lines = _getLines(board, direction);
@@ -92,6 +117,11 @@ class GameService {
     );
   }
 
+  /// Organizes tiles into lines based on the swipe direction.
+  ///
+  /// For left/right: each row becomes a line.
+  /// For up/down: each column becomes a line.
+  /// Tiles are ordered from the direction of movement.
   List<List<Tile>> _getLines(Board board, SwipeDirection direction) {
     final lines = <List<Tile>>[];
     
@@ -126,6 +156,10 @@ class GameService {
     return lines;
   }
 
+  /// Processes a single line of tiles, merging and moving them.
+  ///
+  /// Returns a [LineResult] with the new tile positions, score gained,
+  /// and whether any tiles moved.
   LineResult _mergeLine(List<Tile> line, SwipeDirection direction) {
     if (line.isEmpty) {
       return LineResult(tiles: [], score: 0, moved: false);
@@ -176,6 +210,10 @@ class GameService {
     return LineResult(tiles: mergedTiles, score: score, moved: moved);
   }
 
+  /// Returns the line index for a position based on swipe direction.
+  ///
+  /// For horizontal swipes: returns row number.
+  /// For vertical swipes: returns column number.
   int _getLineIndex(Position position, SwipeDirection direction) {
     switch (direction) {
       case SwipeDirection.left:
@@ -187,6 +225,10 @@ class GameService {
     }
   }
 
+  /// Calculates the board position for a tile at a given index in a line.
+  ///
+  /// Converts from line-based coordinates back to board coordinates,
+  /// accounting for the swipe direction.
   Position _getPositionForIndex(int index, int lineIndex, SwipeDirection direction) {
     switch (direction) {
       case SwipeDirection.left:
@@ -200,6 +242,13 @@ class GameService {
     }
   }
 
+  /// Checks if any legal moves are possible on the board.
+  ///
+  /// Returns true if:
+  /// - There are empty positions, OR
+  /// - Any adjacent tiles have the same value (can merge)
+  ///
+  /// Used for game over detection.
   bool canMove(Board board) {
     if (!board.isFull()) return true;
 
@@ -224,14 +273,26 @@ class GameService {
     return false;
   }
 
+  /// Checks if the player has won by reaching the 2048 tile.
+  ///
+  /// Returns true if any tile has a value >= 2048.
   bool hasWon(Board board) {
     return board.tiles.any((tile) => tile.value >= GameConstants.winningTile);
   }
 }
 
+/// Result of a move operation.
+///
+/// Contains the new board state, score gained from merges,
+/// and whether any tiles actually moved.
 class MoveResult {
+  /// The board state after the move.
   final Board board;
+  
+  /// Points gained from tile merges during this move.
   final int scoreGained;
+  
+  /// Whether any tiles moved or merged.
   final bool moved;
 
   const MoveResult({
@@ -241,9 +302,17 @@ class MoveResult {
   });
 }
 
+/// Result of processing a single line of tiles.
+///
+/// Internal helper class for the merge algorithm.
 class LineResult {
+  /// The tiles in their new positions after merging.
   final List<Tile> tiles;
+  
+  /// Score gained from merges in this line.
   final int score;
+  
+  /// Whether any tiles in this line moved.
   final bool moved;
 
   const LineResult({

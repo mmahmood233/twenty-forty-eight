@@ -5,12 +5,24 @@ import '../../domain/models/swipe_direction.dart';
 import '../../domain/services/game_service.dart';
 import '../../data/repositories/score_repository.dart';
 
+/// State management provider for the 2048 game.
+///
+/// Manages the game board, game state, and coordinates between
+/// the game service and UI. Extends [ChangeNotifier] for reactive updates.
 class GameProvider extends ChangeNotifier {
+  /// Service handling game logic (movement, merging, etc.).
   final GameService _gameService;
+  
+  /// Repository for persisting best score.
   final ScoreRepository _scoreRepository;
 
+  /// Current state of the game board.
   Board _board;
+  
+  /// Current game state (status, scores).
   GameState _gameState;
+  
+  /// Flag to prevent input during animations.
   bool _isAnimating = false;
 
   GameProvider({
@@ -27,10 +39,16 @@ class GameProvider extends ChangeNotifier {
     _initialize();
   }
 
+  /// Public accessor for the current board state.
   Board get board => _board;
+  
+  /// Public accessor for the current game state.
   GameState get gameState => _gameState;
+  
+  /// Whether animations are currently playing.
   bool get isAnimating => _isAnimating;
 
+  /// Initializes the game by loading best score and creating initial board.
   Future<void> _initialize() async {
     final bestScore = await _scoreRepository.getBestScore();
     _board = _gameService.initializeBoard();
@@ -38,6 +56,13 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Executes a move in the specified direction with proper animation sequencing.
+  ///
+  /// Animation sequence:
+  /// 1. Move tiles to new positions (slide animation)
+  /// 2. Show merge effects (pop animation)
+  /// 3. Spawn new tile (scale-in animation)
+  /// 4. Update score and check win/lose conditions
   Future<void> move(SwipeDirection direction) async {
     if (_isAnimating || _gameState.isGameOver) return;
 
@@ -104,6 +129,9 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Restarts the game with a fresh board and resets the score.
+  ///
+  /// Preserves the best score across restarts.
   Future<void> restart() async {
     _board = _gameService.initializeBoard();
     _gameState = _gameState.copyWith(
@@ -114,6 +142,7 @@ class GameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Allows the player to continue playing after reaching 2048.
   void continueAfterWin() {
     if (_gameState.status == GameStatus.won) {
       _gameState = _gameState.copyWith(status: GameStatus.playing);

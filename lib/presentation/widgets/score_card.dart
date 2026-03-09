@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Widget that displays a score with a label.
+///
+/// Used for both current score and best score displays.
 class ScoreCard extends StatelessWidget {
+  /// Label text (e.g., "SCORE" or "BEST").
   final String label;
+  
+  /// The score value to display.
   final int score;
 
   const ScoreCard({

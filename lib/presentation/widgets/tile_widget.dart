@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import '../../domain/models/tile.dart';
 import '../../core/theme/app_colors.dart';
 
+/// Widget that renders a single animated tile on the game board.
+///
+/// Handles three types of animations:
+/// - Slide: Smooth movement to new positions (150ms)
+/// - Spawn: Scale-in effect for new tiles (120ms)
+/// - Merge: Pop effect when tiles combine (100ms)
 class TileWidget extends StatelessWidget {
+  /// The tile data to render.
   final Tile tile;
+  
+  /// Size of each cell on the board.
   final double cellSize;
+  
+  /// Gap between cells (used for positioning calculation).
   final double gap;
 
   const TileWidget({
